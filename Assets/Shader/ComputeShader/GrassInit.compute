@@ -1,0 +1,48 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+
+struct GrassData
+{
+    float4 position;
+    float2 uv;
+};
+
+RWStructuredBuffer<GrassData> _Position;
+uint _FillSize;
+float _Density;
+Texture2D<float4> _HeightMap;
+SamplerState sampler_HeightMap;
+float _DisplacementStrength;
+float _Offset;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x < uint(_FillSize) && id.y < uint(_FillSize))
+    {
+
+        float4 pos = 0.0f;
+        pos.xz = id.xy - _FillSize * 0.5; 
+        pos.xz *= (1.0f / _Density);
+        pos.w = 1.0f;
+        
+        
+        float2 uv = 0.0f;
+        uv = id.xy * (1.0f / _Density);
+        uv /= _FillSize;
+        uv.x = 1 - uv.x;
+        uv.y = 1 - uv.y;
+        _Position[id.x + id.y * _FillSize].uv = uv;
+        
+        float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0);
+        
+        //pos.y += displacement.r * _DisplacementStrength + _Offset;
+        
+        _Position[id.x + id.y * _FillSize].position = pos;
+
+    }
+}
