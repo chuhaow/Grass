@@ -22,10 +22,10 @@ public class Grass : MonoBehaviour
     private struct GrassData
     {
         private Vector4 position;
-        private Vector2 uv;
+        //private Vector2 uv;
 
         public Vector4 Position { get => position; set => position = value; }
-        public Vector2 UV { get => uv; set => uv = value; }
+       // public Vector2 UV { get => uv; set => uv = value; }
     }
 
     [SerializeField] private ComputeShader grassInit;
