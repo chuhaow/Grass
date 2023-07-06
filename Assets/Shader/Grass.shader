@@ -8,6 +8,8 @@ Shader "Unlit/Grass"
     {
         Tags { "RenderType"="Opaque" }
         LOD 100
+        Cull Off
+        Zwrite On
 
         Pass
         {
