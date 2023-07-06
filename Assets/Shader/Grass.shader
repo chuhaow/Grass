@@ -2,7 +2,10 @@ Shader "Unlit/Grass"
 {
     Properties
     {
-        _Colour("Colour", Color) = (1, 1, 1)
+        _Colour1("Colour1", Color) = (1, 1, 1)
+        _Colour2("Colour2", Color) = (1, 1, 1)
+        _AOColour("Ambient Occlusion Colour", Color) = (1,1,1)
+        _TipColour("Grass Tip Colour", Color) = (1,1,1)
         _MainTex ("Texture", 2D) = "white" {}
         _CullingBias("Cull Bias", Range(0.1, 1000.0)) = 500
     }
@@ -42,7 +45,7 @@ Shader "Unlit/Grass"
             float4 _MainTex_ST;
             StructuredBuffer<float4> _Position;
             float _Rotation;
-            float4 _Colour;
+            float4 _Colour1, _Colour2, _AOColour, _TipColour;
             float _CullingBias;
             float4 RotateAroundYInDegrees(float4 vertex, float degrees) {
                 float alpha = 0 * UNITY_PI / 180.0;
@@ -83,14 +86,14 @@ Shader "Unlit/Grass"
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
-                // sample the texture
-
+                float4 col = lerp(_Colour1, _Colour2, i.uv.y);
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
                 float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
-
-                return _Colour * ndotl * i.uv.y;
+                col += lerp(0.0f, _TipColour, i.uv.y * i.uv.y * i.uv.y);
+                float4 aoCol = lerp(_AOColour, 1.0f, i.uv.y);
+                return col * ndotl * aoCol;
             }
             ENDCG
         }

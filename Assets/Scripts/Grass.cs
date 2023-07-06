@@ -12,12 +12,13 @@ public class Grass : MonoBehaviour
     [SerializeField] private Texture heightMap;
     [SerializeField] private Material terrainMat;
     [SerializeField] private float heightOffset;
-   
+    
 
     [Header("Grass Param")]
     [SerializeField] private int fillSize;
     [SerializeField] private float grassDensity;
-
+    [Tooltip("Automatically adjust the fill size based on density")]
+    [SerializeField] private bool autoAdjustFillsize;
 
     private struct GrassData
     {
@@ -33,6 +34,7 @@ public class Grass : MonoBehaviour
 
     private void Start()
     {
+        if (autoAdjustFillsize) fillSize *= (int)grassDensity;
         grassPosition = new ComputeBuffer(fillSize * fillSize, SizeOf(typeof(GrassData)));
         Debug.Log(SizeOf(typeof(GrassData)));
         grassInit.SetInt("_FillSize", fillSize);

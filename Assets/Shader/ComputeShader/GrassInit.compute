@@ -26,9 +26,10 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     {
 
         float4 pos = 0.0f;
-        pos.xz = id.xy - float(_FillSize) * 0.5;
+        pos.xz = (id.xy - float(_FillSize) * 0.5f);
         pos.xz *= (1.0f / _Density);
-        pos.xz += SimplexNoise(float3(pos.xz, 0.0f));
+        pos.x += SimplexNoise(float3(pos.xz, 0.0f));
+        pos.z += SimplexNoise(float3(pos.xz, 0.0f) * 0.7f);
         pos.w = 1.0f;
         
         
@@ -40,7 +41,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         
         float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0);
         
-        pos.y += displacement.x * _DisplacementStrength + _Offset + 0.1f; // 0.5 is offset for grass
+        pos.y += displacement.r * _DisplacementStrength + _Offset; 
         
         _Position[id.x + id.y * _FillSize].position = pos;
 
