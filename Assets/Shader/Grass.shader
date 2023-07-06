@@ -4,6 +4,7 @@ Shader "Unlit/Grass"
     {
         _Colour("Colour", Color) = (1, 1, 1)
         _MainTex ("Texture", 2D) = "white" {}
+        _CullingBias("Cull Bias", Range(0.1, 1000.0)) = 500
     }
     SubShader
     {
@@ -42,13 +43,25 @@ Shader "Unlit/Grass"
             StructuredBuffer<float4> _Position;
             float _Rotation;
             float4 _Colour;
-
+            float _CullingBias;
             float4 RotateAroundYInDegrees(float4 vertex, float degrees) {
                 float alpha = 0 * UNITY_PI / 180.0;
                 float sina, cosa;
                 sincos(alpha, sina, cosa);
                 float2x2 m = float2x2(cosa, -sina, sina, cosa);
                 return float4(mul(m, vertex.xz), vertex.yw).xzyw;
+            }
+
+            bool ShouldCullVert(float3 vert, float bias) {
+                float4 leftPlane = unity_CameraWorldClipPlanes[0];
+                float4 rightPlane = unity_CameraWorldClipPlanes[1];
+                float4 botPlane = unity_CameraWorldClipPlanes[2];
+                float4 topPlane = unity_CameraWorldClipPlanes[3];
+                float4 nearPlane = unity_CameraWorldClipPlanes[4];
+                float4 farPlane = unity_CameraWorldClipPlanes[5];
+                return  dot(float4(vert, 1), leftPlane) > bias || dot(float4(vert, 1), rightPlane) > bias
+                    || dot(float4(vert, 1), botPlane) > bias || dot(float4(vert, 1), topPlane) > bias
+                    || dot(float4(vert, 1), nearPlane) > bias || dot(float4(vert, 1), farPlane) > bias;
             }
 
             v2f vert (appdata v, uint instanceID : SV_INSTANCEID)
@@ -58,8 +71,14 @@ Shader "Unlit/Grass"
                 float3 localPos = RotateAroundYInDegrees(v.vertex, _Rotation).xyz;
                 float4 worldPos = float4(pos.xyz + localPos,1.0f);
 
+                if (ShouldCullVert(worldPos.xyz,_CullingBias)) {
+                    o.vertex = 0.0f; //TODO: Find a better way to cull
+                }
+                else {
+                    o.vertex = UnityObjectToClipPos(worldPos);
+                }
                 //worldPos.y *= _Position[instanceID].w;
-                o.vertex = UnityObjectToClipPos(worldPos);
+                
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
             }
