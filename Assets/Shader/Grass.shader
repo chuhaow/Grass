@@ -71,12 +71,12 @@ Shader "Unlit/Grass"
                 float3 localPos = RotateAroundYInDegrees(v.vertex, _Rotation).xyz;
                 float4 worldPos = float4(pos.xyz + localPos,1.0f);
 
-                if (ShouldCullVert(worldPos.xyz,_CullingBias)) {
-                    o.vertex = 0.0f; //TODO: Find a better way to cull
-                }
-                else {
+                //if (ShouldCullVert(worldPos.xyz,_CullingBias)) {
+                //    o.vertex = 0.0f; //TODO: Find a better way to cull
+                //}
+                //else {
                     o.vertex = UnityObjectToClipPos(worldPos);
-                }
+                //}
                 //worldPos.y *= _Position[instanceID].w;
                 
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);

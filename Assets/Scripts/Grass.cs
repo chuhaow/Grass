@@ -53,15 +53,15 @@ public class Grass : MonoBehaviour
         grassMaterial.SetFloat("_Rotation", 0.0f);
         Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, new Vector3(-500.0f, 200.0f, 500.0f)), grassPosition.count);
 
-        Material grass2 = new Material(grassMaterial);
-        grass2.SetBuffer("_Position", grassPosition);
-        grass2.SetFloat("_Rotation", 45.0f);
-        Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grass2, new Bounds(Vector3.zero, new Vector3(-500.0f, 200.0f, 500.0f)), grassPosition.count);
+        //Material grass2 = new Material(grassMaterial);
+        //grass2.SetBuffer("_Position", grassPosition);
+        //grass2.SetFloat("_Rotation", 45.0f);
+        //Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grass2, new Bounds(Vector3.zero, new Vector3(-500.0f, 200.0f, 500.0f)), grassPosition.count);
 
-        Material grass3 = new Material(grassMaterial);
-        grass3.SetBuffer("_Position", grassPosition);
-        grass3.SetFloat("_Rotation", 135.0f);
-        Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grass3, new Bounds(Vector3.zero, new Vector3(-500.0f, 200.0f, 500.0f)), grassPosition.count);
+        //Material grass3 = new Material(grassMaterial);
+        //grass3.SetBuffer("_Position", grassPosition);
+        //grass3.SetFloat("_Rotation", 135.0f);
+        //Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grass3, new Bounds(Vector3.zero, new Vector3(-500.0f, 200.0f, 500.0f)), grassPosition.count);
 
     }
     void OnDisable()
