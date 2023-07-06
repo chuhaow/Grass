@@ -2,6 +2,7 @@ Shader "Unlit/Grass"
 {
     Properties
     {
+        _Colour("Colour", Color) = (1, 1, 1)
         _MainTex ("Texture", 2D) = "white" {}
     }
     SubShader
@@ -40,6 +41,7 @@ Shader "Unlit/Grass"
             float4 _MainTex_ST;
             StructuredBuffer<float4> _Position;
             float _Rotation;
+            float4 _Colour;
 
             float4 RotateAroundYInDegrees(float4 vertex, float degrees) {
                 float alpha = 0 * UNITY_PI / 180.0;
@@ -65,13 +67,11 @@ Shader "Unlit/Grass"
             fixed4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                clip(-(0.5 - col.a));
-                //Fix lighting
+
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
                 float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
 
-                return col * ndotl;
+                return _Colour * ndotl * i.uv.y;
             }
             ENDCG
         }
