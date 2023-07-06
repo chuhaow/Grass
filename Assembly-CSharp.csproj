@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shader\ComputeShader\GrassInit.compute" />
+    <None Include="Assets\Shader\ComputeShader\SimplexNoise3D.hlsl" />
     <None Include="Assets\Shader\Terrain.shader" />
     <None Include="Assets\Shader\Grass.shader" />
     <None Include="Assets\Shader\ComputeShader\DisplacePlane.compute" />

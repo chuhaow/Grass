@@ -42,7 +42,7 @@ Shader "Unlit/Grass"
             float _Rotation;
 
             float4 RotateAroundYInDegrees(float4 vertex, float degrees) {
-                float alpha = degrees * UNITY_PI / 180.0;
+                float alpha = 0 * UNITY_PI / 180.0;
                 float sina, cosa;
                 sincos(alpha, sina, cosa);
                 float2x2 m = float2x2(cosa, -sina, sina, cosa);

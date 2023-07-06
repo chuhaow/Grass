@@ -426,13 +426,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dacaffed5aebe341b683fb5aae011b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grassMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  grassMesh: {fileID: -462981019419857548, guid: ffce6d0b2b32e0c4fa4f6939ce49f709, type: 3}
   grassMaterial: {fileID: 2100000, guid: 5db16e570f58b294ba71dd3f4ebce284, type: 2}
   heightMap: {fileID: 2800000, guid: 8a299a99dfe3b2544907cc969e31710c, type: 3}
   terrainMat: {fileID: 2100000, guid: 39987d2aefd02294ea79e28f8fa0117e, type: 2}
   heightOffset: -6.6
   fillSize: 200
-  grassDensity: 2
+  grassDensity: 1
   grassInit: {fileID: 7200000, guid: 71a5b216563027e4ba9ffda4198dee7f, type: 3}
 --- !u!1 &1034314418
 GameObject:
