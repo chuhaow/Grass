@@ -66,6 +66,7 @@
     <None Include="Assets\Shader\Terrain.shader" />
     <None Include="Assets\Shader\Grass.shader" />
     <None Include="Assets\Shader\ComputeShader\DisplacePlane.compute" />
+    <None Include="Assets\Shader\ComputeShader\CullGrass.compute" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

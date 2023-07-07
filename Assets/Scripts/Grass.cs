@@ -43,8 +43,8 @@ public class Grass : MonoBehaviour
         public Vector2 WorldUV { get => worldUV; set => worldUV = value; }
     }
 
-    [SerializeField] private ComputeShader grassInit, windGenerator;
-    private ComputeBuffer grassPosition;
+    [SerializeField] private ComputeShader grassInit, windGenerator, cull;
+    private ComputeBuffer grassPosition, voteBuffer;
 
     private void OnEnable()
     {
@@ -92,6 +92,13 @@ public class Grass : MonoBehaviour
         grassInit.SetBuffer(0, "_Position", grassPosition);
         grassInit.Dispatch(0, Mathf.CeilToInt(fillSize / 8.0f), Mathf.CeilToInt(fillSize / 8.0f), 1);
 
+        Matrix4x4 V = Camera.main.transform.worldToLocalMatrix; //view
+        Matrix4x4 P = Camera.main.projectionMatrix; //GL.GetGPUProjectionMatrix
+        Matrix4x4 VP = P * V; //matrix for world to clip space
+        voteBuffer = new ComputeBuffer(fillSize * fillSize, sizeof(bool));
+        cull.SetBuffer(0, "_Vote", voteBuffer);
+        cull.SetMatrix("_ViewProjectionMatrix", VP);
+        cull.Dispatch(0, Mathf.CeilToInt((fillSize * fillSize) / 128.0f), 1, 1);
 
         grassMaterial.SetBuffer("_GrassData", grassPosition);
         grassMaterial.SetTexture("_WindTex", windTexture);

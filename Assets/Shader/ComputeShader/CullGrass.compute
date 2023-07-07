@@ -1,0 +1,28 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Vote
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+
+struct GrassData
+{
+    float4 position;
+    float saturation;
+    float2 worldUV;
+};
+
+RWStructuredBuffer<GrassData> _GrassData;
+RWStructuredBuffer<bool> _Vote;
+
+float4x4 _ViewProjectionMatrix;
+
+[numthreads(128,8,1)]
+void Vote (uint3 id : SV_DispatchThreadID)
+{
+    float4 pos = _GrassData[id.x].position;
+    
+    float3 clipspace = mul(_ViewProjectionMatrix, pos).xyz;
+
+    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+}
