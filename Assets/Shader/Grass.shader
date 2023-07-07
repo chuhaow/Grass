@@ -45,14 +45,16 @@ Shader "Unlit/Grass"
             struct GrassData {
                 float4 position;
                 float saturation;
+                float2 worldUV;
             };
 
-            sampler2D _MainTex;
+            sampler2D _MainTex, _WindTex;
             float4 _MainTex_ST;
             StructuredBuffer<GrassData> _GrassData;
             float _Rotation;
             float4 _Colour1, _Colour2, _AOColour, _TipColour;
             float _CullingBias;
+
             float4 RotateAroundYInDegrees(float4 vertex, float degrees) {
                 float alpha = 0 * UNITY_PI / 180.0;
                 float sina, cosa;
@@ -79,7 +81,9 @@ Shader "Unlit/Grass"
                 float4 pos = _GrassData[instanceID].position;
                 float3 localPos = RotateAroundYInDegrees(v.vertex, _Rotation).xyz;
                 localPos.y *= pos.w;
+                localPos.xz += tex2Dlod(_WindTex, _GrassData[instanceID].worldUV.y);
                 float4 worldPos = float4(pos.xyz + localPos,1.0f);
+                //worldPos.xz += tex2Dlod(_WindTex, _GrassData[instanceID].uv.y);
 
                 //if (ShouldCullVert(worldPos.xyz,_CullingBias)) {
                 //    o.vertex = 0.0f; //TODO: Find a better way to cull
@@ -97,6 +101,8 @@ Shader "Unlit/Grass"
             fixed4 frag(v2f i) : SV_Target
             {
                 float4 col = lerp(_Colour1, _Colour2, i.uv.y);
+                //float4 col = tex2D(_WindTex,i.uv);
+                //return col;
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
                 float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
                 col += lerp(0.0f, _TipColour, i.uv.y * i.uv.y * i.uv.y); // cubing uv.y so it is closer to tip color near top

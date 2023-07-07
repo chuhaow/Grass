@@ -60,6 +60,7 @@
     <Compile Include="Assets\Scripts\Grass.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Shader\ComputeShader\WindNoise.compute" />
     <None Include="Assets\Shader\ComputeShader\GrassInit.compute" />
     <None Include="Assets\Shader\ComputeShader\SimplexNoise3D.hlsl" />
     <None Include="Assets\Shader\Terrain.shader" />
