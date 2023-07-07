@@ -23,10 +23,12 @@ public class Grass : MonoBehaviour
     private struct GrassData
     {
         private Vector4 position;
+        private float saturation;
         //private Vector2 uv;
 
         public Vector4 Position { get => position; set => position = value; }
-       // public Vector2 UV { get => uv; set => uv = value; }
+        public float Saturation { get => saturation; set => saturation = value; }
+        // public Vector2 UV { get => uv; set => uv = value; }
     }
 
     [SerializeField] private ComputeShader grassInit;
@@ -44,14 +46,14 @@ public class Grass : MonoBehaviour
         grassInit.SetFloat("_Offset", heightOffset);
         grassInit.SetBuffer(0,"_Position", grassPosition);
         grassInit.Dispatch(0, Mathf.CeilToInt(fillSize / 8.0f), Mathf.CeilToInt(fillSize / 8.0f), 1);
-        grassMaterial.SetBuffer("_Position", grassPosition);
+        grassMaterial.SetBuffer("_GrassData", grassPosition);
 
         //GrassData[] positions = new GrassData[fillSize * fillSize];
         //grassPosition.GetData(positions);
     }
     void Update()
     {
-        grassMaterial.SetBuffer("_Position", grassPosition);
+        grassMaterial.SetBuffer("_GrassData", grassPosition);
         grassMaterial.SetFloat("_Rotation", 0.0f);
         Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, new Vector3(-500.0f, 200.0f, 500.0f)), grassPosition.count);
 

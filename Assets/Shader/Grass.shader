@@ -39,11 +39,17 @@ Shader "Unlit/Grass"
                 float2 uv : TEXCOORD0;
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
+                float saturation : TEXCOORD1;
+            };
+
+            struct GrassData {
+                float4 position;
+                float saturation;
             };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            StructuredBuffer<float4> _Position;
+            StructuredBuffer<GrassData> _GrassData;
             float _Rotation;
             float4 _Colour1, _Colour2, _AOColour, _TipColour;
             float _CullingBias;
@@ -70,8 +76,9 @@ Shader "Unlit/Grass"
             v2f vert (appdata v, uint instanceID : SV_INSTANCEID)
             {
                 v2f o;
-                float4 pos = _Position[instanceID];
+                float4 pos = _GrassData[instanceID].position;
                 float3 localPos = RotateAroundYInDegrees(v.vertex, _Rotation).xyz;
+                localPos.y *= pos.w;
                 float4 worldPos = float4(pos.xyz + localPos,1.0f);
 
                 //if (ShouldCullVert(worldPos.xyz,_CullingBias)) {
@@ -83,6 +90,7 @@ Shader "Unlit/Grass"
                 //worldPos.y *= _Position[instanceID].w;
                 
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.saturation = max(0.5f, 1.0f - (localPos.y- 1.0f / 1.5f));
                 return o;
             }
 
@@ -91,7 +99,10 @@ Shader "Unlit/Grass"
                 float4 col = lerp(_Colour1, _Colour2, i.uv.y);
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
                 float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
-                col += lerp(0.0f, _TipColour, i.uv.y * i.uv.y * i.uv.y);
+                col += lerp(0.0f, _TipColour, i.uv.y * i.uv.y * i.uv.y); // cubing uv.y so it is closer to tip color near top
+                float sat = lerp(1.0f, i.saturation, i.uv.y );
+                col /= i.saturation;
+                col = saturate(col);
                 float4 aoCol = lerp(_AOColour, 1.0f, i.uv.y);
                 return col * ndotl * aoCol;
             }

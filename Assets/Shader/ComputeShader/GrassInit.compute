@@ -8,6 +8,7 @@ RWTexture2D<float4> Result;
 struct GrassData
 {
     float4 position;
+    float saturation;
     //float2 uv;
 };
 
@@ -24,13 +25,13 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 {
     if (id.x < uint(_FillSize) && id.y < uint(_FillSize))
     {
-
+        GrassData grass;
         float4 pos = 0.0f;
         pos.xz = (id.xy - float(_FillSize) * 0.5f);
         pos.xz *= (1.0f / _Density);
         pos.x += SimplexNoise(float3(pos.xz, 0.0f));
         pos.z += SimplexNoise(float3(pos.xz, 0.0f) * 0.7f);
-        pos.w = 1.0f;
+        pos.w = max(2.0f, abs(SimplexNoise(float3(pos.xz, 0.0f) * 0.5f) * 5.5f)); // parameterize this
         
         
         float2 uv = 0.0f;
@@ -43,7 +44,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         
         pos.y += displacement.r * _DisplacementStrength + _Offset; 
         
-        _Position[id.x + id.y * _FillSize].position = pos;
+        grass.position = pos;
+        
+        grass.saturation = 1.0f;
+
+        
+        _Position[id.x + id.y * _FillSize] = grass;
 
     }
 }
