@@ -407,7 +407,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.6, z: -12.4}
+  m_LocalPosition: {x: 0, y: -4.91, z: -12.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -434,7 +434,9 @@ MonoBehaviour:
   fillSize: 50
   grassDensity: 12
   autoAdjustFillsize: 1
+  windFreq: 0.5
   grassInit: {fileID: 7200000, guid: 71a5b216563027e4ba9ffda4198dee7f, type: 3}
+  windGenerator: {fileID: 7200000, guid: 80528f5d5b6e5ec44b3f7f81e471dfad, type: 3}
 --- !u!1 &1034314418
 GameObject:
   m_ObjectHideFlags: 0

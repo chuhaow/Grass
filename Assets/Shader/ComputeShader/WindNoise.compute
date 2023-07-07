@@ -1,15 +1,44 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
-
+#include "SimplexNoise3D.hlsl"
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWTexture2D<float4> WindNoise;
 
 float _Time, _Freq;
 
+int _NoiseMode;
+
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
+    float result;
+    float turbPower = 2.0f;
+    float turbSize = 1.5f;
+    float sineValue;
+    switch (_NoiseMode)
+    {
+        case 0: //Marble Noise
+            float xPeriod = 0.05f;
+            float yPeriod = 0.5f;
+            
+    
+            float xyValue = id.x * xPeriod + id.y * yPeriod + turbPower * SimplexNoise(float3(id.x, id.y, turbSize));
+            sineValue = (sin(xyValue + _Time) * _Freq);
+            result = sineValue;
+            break;
+        case 1: // Ripple, TODO: Fix no movement for some grass
+            uint noiseWidth, noiseHeight;
+            WindNoise.GetDimensions(noiseWidth, noiseHeight);
+            float xyPeriod = 12.0f;
+            float xValue = (id.x - noiseWidth / 2) / float(noiseWidth);
+            float yValue = (id.y - noiseHeight / 2) / float(noiseHeight);
+            float dist = sqrt(xValue * xValue + yValue * yValue) + turbPower * SimplexNoise(float3(id.x, id.y, turbPower));
+            sineValue = sin(2 * xyPeriod * dist * 3.14159f + _Time) * _Freq;
+            result = sineValue;
+            break;
+    }
+    
+    WindNoise[id.xy] = result;
 
-    WindNoise[id.xy] = sin(id.x + id.y + _Time) * _Freq;
 }

@@ -77,12 +77,12 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _AOColor: {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
-    - _AOColour: {r: 0.20754719, g: 0.18698826, b: 0.18698826, a: 1}
+    - _AOColour: {r: 0, g: 0, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Colour: {r: 0.58610505, g: 0.9528302, b: 0.4449537, a: 1}
-    - _Colour1: {r: 0.24850772, g: 0.9882353, b: 0, a: 1}
-    - _Colour2: {r: 0.28297058, g: 1, b: 0.18431371, a: 1}
+    - _Colour1: {r: 0.40200025, g: 0.9339623, b: 0.22467959, a: 1}
+    - _Colour2: {r: 0.21428162, g: 0.6981132, b: 0.14818443, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _TipColor: {r: 1, g: 1, b: 1, a: 1}
-    - _TipColour: {r: 0.8, g: 1, b: 0, a: 1}
+    - _TipColour: {r: 0.77306116, g: 0.8584906, b: 0.44139376, a: 1}
   m_BuildTextureStacks: []

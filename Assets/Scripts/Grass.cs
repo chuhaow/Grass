@@ -6,6 +6,11 @@ using UnityEngine.TerrainUtils;
 
 public class Grass : MonoBehaviour
 {
+    public enum WindNoiseMode
+    {
+        MARBLE,
+        RIPPLE
+    }
     
     [SerializeField] private Mesh grassMesh;
     [SerializeField] private Material grassMaterial;
@@ -23,7 +28,9 @@ public class Grass : MonoBehaviour
     [SerializeField] private bool autoAdjustFillsize;
 
     [Header("Wind Param")]
+    [Range(0f, 1f)]
     [SerializeField] private float windFreq;
+    [SerializeField] private WindNoiseMode windNoiseMode;
 
     private struct GrassData
     {
@@ -58,7 +65,7 @@ public class Grass : MonoBehaviour
         GenerateWind();
         grassMaterial.SetBuffer("_GrassData", grassPosition);
         grassMaterial.SetFloat("_Rotation", 0.0f);
-        Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, new Vector3(-500.0f, 200.0f, 500.0f)), grassPosition.count);
+        Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, new Vector3(-400.0f, 200.0f, 400.0f)), grassPosition.count);
 
         //Material grass2 = new Material(grassMaterial);
         //grass2.SetBuffer("_Position", grassPosition);
@@ -95,6 +102,7 @@ public class Grass : MonoBehaviour
         windGenerator.SetTexture(0, "WindNoise", windTexture);
         windGenerator.SetFloat("_Time", Time.time);
         windGenerator.SetFloat("_Freq", windFreq);
+        windGenerator.SetInt("_NoiseMode", (int)windNoiseMode);
         windGenerator.Dispatch(0, Mathf.CeilToInt(fillSize / 8.0f), Mathf.CeilToInt(fillSize / 8.0f), 1);
 
     }

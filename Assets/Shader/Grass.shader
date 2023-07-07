@@ -81,7 +81,7 @@ Shader "Unlit/Grass"
                 float4 pos = _GrassData[instanceID].position;
                 float3 localPos = RotateAroundYInDegrees(v.vertex, _Rotation).xyz;
                 localPos.y *= pos.w;
-                localPos.xz += tex2Dlod(_WindTex, _GrassData[instanceID].worldUV.y);
+                localPos.xz += pos.w * tex2Dlod(_WindTex, _GrassData[instanceID].worldUV.y) * v.uv.y; // multiple by uv.y to keep base still
                 float4 worldPos = float4(pos.xyz + localPos,1.0f);
                 //worldPos.xz += tex2Dlod(_WindTex, _GrassData[instanceID].uv.y);
 
