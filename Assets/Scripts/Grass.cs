@@ -44,7 +44,7 @@ public class Grass : MonoBehaviour
     }
 
     [SerializeField] private ComputeShader grassInit, windGenerator, cull;
-    private ComputeBuffer grassPosition, voteBuffer;
+    private ComputeBuffer grassPosition, voteBuffer, scanBuffer;
 
     private void OnEnable()
     {
@@ -96,6 +96,7 @@ public class Grass : MonoBehaviour
         Matrix4x4 P = Camera.main.projectionMatrix; //GL.GetGPUProjectionMatrix
         Matrix4x4 VP = P * V; //matrix for world to clip space
         voteBuffer = new ComputeBuffer(fillSize * fillSize, sizeof(bool));
+        scanBuffer = new ComputeBuffer(fillSize * fillSize, sizeof(uint));
         cull.SetBuffer(0, "_Vote", voteBuffer);
         cull.SetMatrix("_ViewProjectionMatrix", VP);
         cull.Dispatch(0, Mathf.CeilToInt((fillSize * fillSize) / 128.0f), 1, 1);

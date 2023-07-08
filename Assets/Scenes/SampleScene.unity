@@ -566,7 +566,7 @@ MonoBehaviour:
   windNoiseMode: 0
   grassInit: {fileID: 7200000, guid: 71a5b216563027e4ba9ffda4198dee7f, type: 3}
   windGenerator: {fileID: 7200000, guid: 80528f5d5b6e5ec44b3f7f81e471dfad, type: 3}
-  cull: {fileID: 0}
+  cull: {fileID: 7200000, guid: 5e590a8b132637440885947bd4774695, type: 3}
 --- !u!1 &1034314418
 GameObject:
   m_ObjectHideFlags: 0
