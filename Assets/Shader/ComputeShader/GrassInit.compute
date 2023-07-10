@@ -10,6 +10,7 @@ struct GrassData
     float4 position;
     float saturation;
     float2 worldUV;
+    float displacement;
 };
 
 RWStructuredBuffer<GrassData> _Position;
@@ -19,6 +20,8 @@ Texture2D<float4> _HeightMap;
 SamplerState sampler_HeightMap;
 float _DisplacementStrength;
 float _Offset;
+float _PositionNoiseAmp;
+float _NeatnessZ;
 
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
@@ -29,8 +32,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         float4 pos = 0.0f;
         pos.xz = (id.xy - float(_FillSize) * 0.5f);
         pos.xz *= (1.0f / _Density);
-        pos.x += SimplexNoise(float3(pos.xz, 0.0f));
-        pos.z += SimplexNoise(float3(pos.xz, 0.0f) * 0.7f);
+        pos.x += SimplexNoise(float3(pos.xz, 0.0f)) * _PositionNoiseAmp;
+        pos.z += SimplexNoise(float3(pos.xz, 0.0f) * 0.7f) * _PositionNoiseAmp;
         pos.w = max(2.0f, abs(SimplexNoise(float3(pos.xz, 0.0f) * 0.5f) * 3.0f)); // parameterize this
         
         
@@ -50,6 +53,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         
         grass.worldUV = uv;
 
+        grass.displacement = displacement.r * _DisplacementStrength;
         
         _Position[id.x + id.y * _FillSize] = grass;
 

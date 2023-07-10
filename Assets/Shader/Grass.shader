@@ -7,7 +7,7 @@ Shader "Unlit/Grass"
         _AOColour("Ambient Occlusion Colour", Color) = (1,1,1)
         _TipColour("Grass Tip Colour", Color) = (1,1,1)
         _MainTex ("Texture", 2D) = "white" {}
-        _CullingBias("Cull Bias", Range(0.1, 1000.0)) = 500
+        _BaseHeight("Base Height", Range(0, 20)) = 0
     }
     SubShader
     {
@@ -27,6 +27,7 @@ Shader "Unlit/Grass"
             #include "UnityCG.cginc"
             #include "UnityPBSLighting.cginc"
             #include "AutoLight.cginc"
+            #include "Random.cginc"
 
             struct appdata
             {
@@ -40,12 +41,14 @@ Shader "Unlit/Grass"
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
                 float saturation : TEXCOORD1;
+                float4 col : TEXCOORD2;
             };
 
             struct GrassData {
                 float4 position;
                 float saturation;
                 float2 worldUV;
+                float displacement;
             };
 
             sampler2D _MainTex, _WindTex;
@@ -53,7 +56,7 @@ Shader "Unlit/Grass"
             StructuredBuffer<GrassData> _GrassData;
             float _Rotation;
             float4 _Colour1, _Colour2, _AOColour, _TipColour;
-            float _CullingBias;
+            float _BaseHeight;
 
             float4 RotateAroundYInDegrees(float4 vertex, float degrees) {
                 float alpha = 0 * UNITY_PI / 180.0;
@@ -63,26 +66,36 @@ Shader "Unlit/Grass"
                 return float4(mul(m, vertex.xz), vertex.yw).xzyw;
             }
 
-            bool ShouldCullVert(float3 vert, float bias) {
-                float4 leftPlane = unity_CameraWorldClipPlanes[0];
-                float4 rightPlane = unity_CameraWorldClipPlanes[1];
-                float4 botPlane = unity_CameraWorldClipPlanes[2];
-                float4 topPlane = unity_CameraWorldClipPlanes[3];
-                float4 nearPlane = unity_CameraWorldClipPlanes[4];
-                float4 farPlane = unity_CameraWorldClipPlanes[5];
-                return  dot(float4(vert, 1), leftPlane) > bias || dot(float4(vert, 1), rightPlane) > bias
-                    || dot(float4(vert, 1), botPlane) > bias || dot(float4(vert, 1), topPlane) > bias
-                    || dot(float4(vert, 1), nearPlane) > bias || dot(float4(vert, 1), farPlane) > bias;
+            float4 RotateAroundXInDegrees(float4 vertex, float degrees) {
+                float alpha = degrees * UNITY_PI / 180.0;
+                float sina, cosa;
+                sincos(alpha, sina, cosa);
+                float2x2 m = float2x2(cosa, -sina, sina, cosa);
+                return float4(mul(m, vertex.yz), vertex.xw).zxyw;
             }
+
 
             v2f vert (appdata v, uint instanceID : SV_INSTANCEID)
             {
                 v2f o;
+
                 float4 pos = _GrassData[instanceID].position;
-                float3 localPos = RotateAroundYInDegrees(v.vertex, _Rotation).xyz;
-                localPos.y *= pos.w;
-                localPos.xz += pos.w * tex2Dlod(_WindTex, _GrassData[instanceID].worldUV.y) * v.uv.y; // multiple by uv.y to keep base still
+
+
+                float idHash = randValue(abs(pos.x * 1000 + pos.y * 100 + pos.z * 0.05f));
+                idHash = randValue(idHash * 10000);
+
+                float4 animationDirection = float4(0.0f, 0.0f, 1.0f, 0.0f);
+                animationDirection = normalize(RotateAroundYInDegrees(animationDirection, idHash * 180.0f));
+
+
+                float4 localPos = v.vertex;
+                localPos = RotateAroundXInDegrees(localPos, 45 * idHash);
+                localPos.y *= pos.w + _BaseHeight;
+                localPos.x += pos.w * tex2Dlod(_WindTex, _GrassData[instanceID].worldUV.y) * v.uv.y * animationDirection.x; // multiple by uv.y to keep base still
+                localPos.z += pos.w * tex2Dlod(_WindTex, _GrassData[instanceID].worldUV.y) * v.uv.y * animationDirection.z;
                 float4 worldPos = float4(pos.xyz + localPos,1.0f);
+                
                 //worldPos.xz += tex2Dlod(_WindTex, _GrassData[instanceID].uv.y);
 
                 //if (ShouldCullVert(worldPos.xyz,_CullingBias)) {
@@ -95,6 +108,10 @@ Shader "Unlit/Grass"
                 
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.saturation = max(0.5f, 1.0f - (localPos.y- 1.0f / 1.5f));
+                //o.col = worldPos;
+                /*if (length(worldPos) < 2.0f) {
+                    o.col = worldPos;
+                }*/
                 return o;
             }
 
