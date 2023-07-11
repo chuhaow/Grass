@@ -41,7 +41,7 @@ Shader "Unlit/Grass"
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
                 float saturation : TEXCOORD1;
-                float4 col : TEXCOORD2;
+                float3 chunkNum : TEXCOORD2;
             };
 
             struct GrassData {
@@ -57,6 +57,7 @@ Shader "Unlit/Grass"
             float _Rotation;
             float4 _Colour1, _Colour2, _AOColour, _TipColour;
             float _BaseHeight;
+            int _ChunkNum;
 
             float4 RotateAroundYInDegrees(float4 vertex, float degrees) {
                 float alpha = 0 * UNITY_PI / 180.0;
@@ -108,6 +109,7 @@ Shader "Unlit/Grass"
                 
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.saturation = max(0.5f, 1.0f - (localPos.y- 1.0f / 1.5f));
+                o.chunkNum= float3(randValue(_ChunkNum * 20 + 1024), randValue(randValue(_ChunkNum) * 10 + 2048), randValue(_ChunkNum * 4 + 4096));
                 //o.col = worldPos;
                 /*if (length(worldPos) < 2.0f) {
                     o.col = worldPos;
@@ -118,6 +120,8 @@ Shader "Unlit/Grass"
             fixed4 frag(v2f i) : SV_Target
             {
                 float4 col = lerp(_Colour1, _Colour2, i.uv.y);
+                col = float4(i.chunkNum,1);
+                return col ;
                 //float4 col = tex2D(_WindTex,i.uv);
                 //return col;
                 float3 lightDir = _WorldSpaceLightPos0.xyz;

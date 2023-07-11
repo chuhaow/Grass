@@ -216,7 +216,7 @@ Transform:
   m_GameObject: {fileID: 614446216}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.32, y: 1, z: 0.32}
+  m_LocalScale: {x: 3, y: 1, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -560,12 +560,13 @@ MonoBehaviour:
   terrainMat: {fileID: 2100000, guid: 39987d2aefd02294ea79e28f8fa0117e, type: 2}
   heightOffset: 0
   fillSize: 32
-  grassDensity: 16
+  grassDensityPerChunk: 16
+  numChunks: 2
   updateGrass: 0
   positionNoiseAmp: 0.1
   windFreq: 0.05
   windNoiseMode: 0
-  grassInit: {fileID: 7200000, guid: 71a5b216563027e4ba9ffda4198dee7f, type: 3}
+  grassInit: {fileID: 7200000, guid: ac3b247ea579ffd4fb8fd9dc5cb339ff, type: 3}
   windGenerator: {fileID: 7200000, guid: 80528f5d5b6e5ec44b3f7f81e471dfad, type: 3}
   cull: {fileID: 7200000, guid: 5e590a8b132637440885947bd4774695, type: 3}
 --- !u!1 &1034314418
@@ -659,7 +660,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1034314418}
   m_LocalRotation: {x: 0.061686877, y: -0, z: -0, w: 0.9980956}
-  m_LocalPosition: {x: 1.4, y: 2.52, z: -0.31}
+  m_LocalPosition: {x: 1.4, y: 8.5, z: -0.31}
   m_LocalScale: {x: 1, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

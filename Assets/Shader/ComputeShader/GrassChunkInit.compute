@@ -1,0 +1,70 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+#include "SimplexNoise3D.hlsl"
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+
+struct GrassData
+{
+    float4 position;
+    float saturation;
+    float2 worldUV;
+    float displacement;
+};
+
+RWStructuredBuffer<GrassData> _Position;
+int _FillSize, _NumChunks, _ChunkDimension;
+int _Density;
+Texture2D<float4> _HeightMap;
+SamplerState sampler_HeightMap;
+float _DisplacementStrength;
+float _Offset;
+float _PositionNoiseAmp;
+float _NeatnessZ;
+int OffsetX, OffsetY;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x < uint(_ChunkDimension) && id.y < uint(_ChunkDimension))
+    {
+        GrassData grass;
+        float4 pos = 0.0f;
+        float scale = float(_Density);
+        float dimension = float(_FillSize);
+        float chunkDimension = float(_ChunkDimension);
+        float scaled = dimension * scale;
+        
+        pos.x = (id.x - (chunkDimension * 0.5f * _NumChunks)) + chunkDimension * OffsetX;
+        pos.z = (id.y - (chunkDimension * 0.5f * _NumChunks)) + chunkDimension * OffsetY;
+        
+        pos.xz *= (1.0f / scale);
+        
+        pos.x += SimplexNoise(float3(pos.xz + OffsetX + OffsetY, 0.0f)) * _PositionNoiseAmp;
+        pos.z += SimplexNoise(float3(pos.xz + OffsetX + OffsetY, 0.0f) * 0.7f) * _PositionNoiseAmp;
+        //pos.w = max(2.0f, abs(SimplexNoise(float3(pos.xz, 0.0f) * 0.5f) * 3.0f)); // parameterize this
+        
+        float uvX = pos.x + dimension * 0.5f * _NumChunks * (1.0f / _NumChunks);
+        float uvY = pos.z + dimension * 0.5f * _NumChunks * (1.0f / _NumChunks);
+        
+        float2 uv = float2(uvX, uvY) / dimension;
+        uv.x = 1 - uv.x;
+        uv.y = 1 - uv.y;
+        
+        float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0);
+        
+        pos.y += displacement.r * _DisplacementStrength + _Offset;
+        
+        grass.position = pos;
+        
+        grass.saturation = 1.0f;
+        
+        grass.worldUV = uv;
+
+        grass.displacement = displacement.r * _DisplacementStrength;
+        
+        _Position[id.x + id.y * _ChunkDimension] = grass;
+
+    }
+}
