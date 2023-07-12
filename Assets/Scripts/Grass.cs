@@ -16,6 +16,7 @@ public class Grass : MonoBehaviour
     }
     
     [SerializeField] private Mesh grassMesh;
+    [SerializeField] private Mesh lodGrassMesh;
     [SerializeField] private Material grassMaterial;
     [SerializeField] private Texture heightMap;
     [SerializeField] private Material terrainMat;
@@ -30,6 +31,7 @@ public class Grass : MonoBehaviour
     [SerializeField] private int numChunks;
     [SerializeField] private bool updateGrass;
     [SerializeField] private float positionNoiseAmp;
+    [SerializeField] private float lodDistance;
 
     [Header("Wind Param")]
     [Range(0f, 1f)]
@@ -58,15 +60,11 @@ public class Grass : MonoBehaviour
         private ComputeBuffer culledGrassBuffer;
         private Bounds bounds;
         private Material grassMat;
-        private int offsetX;
-        private int offsetY;
 
         public ComputeBuffer GrassBuffer { get => grassBuffer; set => grassBuffer = value; }
         public ComputeBuffer CulledGrassBuffer { get => culledGrassBuffer; set => culledGrassBuffer = value; }
         public Bounds Bounds { get => bounds; set => bounds = value; }
         public Material GrassMat { get => grassMat; set => grassMat = value; }
-        public int OffsetX { get => offsetX; set => offsetX = value; }
-        public int OffsetY { get => offsetY; set => offsetY = value; }
     }
 
     [SerializeField] private ComputeShader grassInit, windGenerator, cull;
@@ -100,8 +98,8 @@ public class Grass : MonoBehaviour
                 numGroups ++;
         }
 
-        numVoteGroups  = Mathf.CeilToInt(instancesPerChunk  / DEFAULT_VOTE_THREAD_GROUP);
-        numScanGroups = Mathf.CeilToInt(instancesPerChunk  / DEFAULT_SCAN_THREAD_GROUP);
+        numVoteGroups  = Mathf.CeilToInt(instancesPerChunk / DEFAULT_VOTE_THREAD_GROUP);
+        numScanGroups = Mathf.CeilToInt(instancesPerChunk / DEFAULT_SCAN_THREAD_GROUP);
 
 
         voteBuffer = new ComputeBuffer(instancesPerChunk , 4);
@@ -135,7 +133,9 @@ public class Grass : MonoBehaviour
         {
             for (int y = 0; y < numChunks; ++y)
             {
-                chunks[x + y * numChunks] = CreateChunk(x, y);
+                var chunk = CreateChunk(x, y);
+                SetUpChunkInfo(chunk, x, y);
+                chunks[x + y * numChunks] = chunk;
             }
         }
     }
@@ -158,20 +158,23 @@ public class Grass : MonoBehaviour
 
         chunk.Bounds = new Bounds(chunkCenter, new Vector3(-singleChunkDim, 10.0f, singleChunkDim));
         
-        grassInit.SetInt("OffsetX", OffsetX);
-        grassInit.SetInt("OffsetY", OffsetY);
-        grassInit.SetBuffer(0, "_Position", chunk.GrassBuffer);
-        grassInit.Dispatch(0, Mathf.CeilToInt(fillSize / numChunks) * (int)grassDensityPerChunk, Mathf.CeilToInt(fillSize / numChunks) * (int)grassDensityPerChunk, 1);
         chunk.GrassMat = new Material(grassMaterial);
-        chunk.GrassMat.SetBuffer("_GrassData", chunk.CulledGrassBuffer);
-        chunk.GrassMat.SetTexture("_WindTex", windTexture);
-        chunk.GrassMat.SetInt("_ChunkNum", OffsetX + OffsetY * numChunks);
-        chunk.OffsetX = OffsetX;
-        chunk.OffsetY = OffsetY;
 
         return chunk;
 
 
+    }
+
+    private void SetUpChunkInfo(GrassChunk chunk,int OffsetX, int OffsetY)
+    {
+        grassInit.SetInt("OffsetX", OffsetX);
+        grassInit.SetInt("OffsetY", OffsetY);
+        grassInit.SetBuffer(0, "_Position", chunk.GrassBuffer);
+        grassInit.Dispatch(0, Mathf.CeilToInt(fillSize / numChunks) * (int)grassDensityPerChunk, Mathf.CeilToInt(fillSize / numChunks) * (int)grassDensityPerChunk, 1);
+
+        chunk.GrassMat.SetBuffer("_GrassData", chunk.CulledGrassBuffer);
+        chunk.GrassMat.SetTexture("_WindTex", windTexture);
+        chunk.GrassMat.SetInt("_ChunkNum", OffsetX + OffsetY * numChunks);
     }
 
     void Update()
@@ -182,59 +185,30 @@ public class Grass : MonoBehaviour
         GenerateWind();
         for (int i = 0; i < numChunks * numChunks; ++i)
         {
+            float dist = Vector3.Distance(Camera.main.transform.position, chunks[i].Bounds.center);
+            //if (shouldCullChunk(chunks[i])) continue;
             CullGrass(chunks[i], VP);
-            Graphics.DrawMeshInstancedProcedural(grassMesh, 0, chunks[i].GrassMat, field, chunks[i].GrassBuffer.count);
+            //Graphics.DrawMeshInstancedProcedural(grassMesh, 0, chunks[i].GrassMat, field, chunks[i].GrassBuffer.count);
+            if (dist < lodDistance)
+            {
+                Graphics.DrawMeshInstancedProcedural(grassMesh, 0, chunks[i].GrassMat, field, chunks[i].GrassBuffer.count);
+            }
+            else
+            {
+                Graphics.DrawMeshInstancedProcedural(lodGrassMesh, 0, chunks[i].GrassMat, field, chunks[i].GrassBuffer.count);
+            }
         }
 
-  
-        
-
-
-        //if (updateGrass)
-        //{
-        //    UpdateChunks();
-        //    updateGrass = false;
-        //}
-        //Material grass2 = new Material(grassMaterial);
-        //grass2.SetBuffer("_Position", grassPosition);
-        //grass2.SetFloat("_Rotation", 45.0f);
-        //Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grass2, new Bounds(Vector3.zero, new Vector3(-500.0f, 200.0f, 500.0f)), grassPosition.count);
-
-        //Material grass3 = new Material(grassMaterial);
-        //grass3.SetBuffer("_Position", grassPosition);
-        //grass3.SetFloat("_Rotation", 135.0f);
-        //Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grass3, new Bounds(Vector3.zero, new Vector3(-500.0f, 200.0f, 500.0f)), grassPosition.count);
 
     }
 
-    private void UpdateChunks()
+    private bool shouldCullChunk(GrassChunk chunk)
     {
-        Debug.Log(SizeOf(typeof(GrassData)));
-
-        Matrix4x4 P = Camera.main.projectionMatrix;
-        Matrix4x4 V = Camera.main.transform.worldToLocalMatrix;
-        Matrix4x4 VP = P * V;
-        //GenerateWind();
-        for (int i = 0; i < numChunks * numChunks; ++i)
-        {
-
-            CullGrass(chunks[i],VP);
-            chunks[i].GrassMat.SetBuffer("_GrassData", chunks[i].CulledGrassBuffer);
-            chunks[i].GrassMat.SetTexture("_WindTex", windTexture);
-            chunks[i].GrassMat.SetInt("_ChunkNum", chunks[i].OffsetX + chunks[i].OffsetY * numChunks);
-        }
-        //if (autoAdjustFillsize) fillSize *= (int)grassDensity;
         
-        
-        
-        //voteBuffer = new ComputeBuffer(fillSize * fillSize, sizeof(bool));
-        //scanBuffer = new ComputeBuffer(fillSize * fillSize, sizeof(uint));
-        //cull.SetBuffer(0, "_Vote", voteBuffer);
-        //cull.SetMatrix("_ViewProjectionMatrix", VP);
-        //cull.Dispatch(0, Mathf.CeilToInt((fillSize * fillSize) / 128.0f), 1, 1);
-
-        //grassMaterial.SetBuffer("_GrassData", grassDataBuffer);
-        //grassMaterial.SetTexture("_WindTex", windTexture);
+        Vector3 closest = chunk.Bounds.ClosestPoint(Camera.main.transform.position);
+        var heading = closest - Camera.main.transform.position;
+        var dot = Vector3.Dot(heading, Camera.main.transform.forward);
+        return dot < -0.9f;
     }
 
     private void GenerateWind()
@@ -287,8 +261,17 @@ public class Grass : MonoBehaviour
         groupSumArrayBuffer.Release();
         scannedGroupSumBuffer.Release();
         //culledGrassOutputBuffer.Release();
-        compactedGrassIndicesBuffer.Release();
-        
+        //compactedGrassIndicesBuffer.Release();
+        ReleaseChunks();
+    }
+
+    private void ReleaseChunks()
+    {
+        foreach(var chunk in chunks) { 
+            chunk.CulledGrassBuffer.Release();
+            chunk.GrassBuffer.Release();
+            
+        }
     }
 
     void OnDrawGizmos()
