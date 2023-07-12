@@ -65,6 +65,7 @@
     <None Include="Assets\Shader\Random.cginc" />
     <None Include="Assets\Shader\ComputeShader\SimplexNoise3D.hlsl" />
     <None Include="Assets\Shader\Terrain.shader" />
+    <None Include="Assets\Shader\ComputeShader\WindNoise1.compute" />
     <None Include="Assets\Shader\Grass.shader" />
     <None Include="Assets\Shader\ComputeShader\GrassChunkInit.compute" />
     <None Include="Assets\Shader\ComputeShader\DisplacePlane.compute" />

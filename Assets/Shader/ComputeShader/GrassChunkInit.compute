@@ -43,7 +43,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         
         pos.x += SimplexNoise(float3(pos.xz + OffsetX + OffsetY, 0.0f)) * _PositionNoiseAmp;
         pos.z += SimplexNoise(float3(pos.xz + OffsetX + OffsetY, 0.0f) * 0.7f) * _PositionNoiseAmp;
-        //pos.w = max(2.0f, abs(SimplexNoise(float3(pos.xz, 0.0f) * 0.5f) * 3.0f)); // parameterize this
+        pos.w = max(2.0f, abs(SimplexNoise(float3(pos.xz, 0.0f) * 0.5f) * 3.0f)); // parameterize this
         
         float uvX = pos.x + dimension * 0.5f * _NumChunks * (1.0f / _NumChunks);
         float uvY = pos.z + dimension * 0.5f * _NumChunks * (1.0f / _NumChunks);

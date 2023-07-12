@@ -118,11 +118,10 @@ public class Grass : MonoBehaviour
         grassInit.SetFloat("_Offset", heightOffset);
         grassInit.SetFloat("_PositionNoiseAmp", positionNoiseAmp);
 
-        windTexture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
+        windTexture = new RenderTexture(256, 256, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
         windTexture.enableRandomWrite = true;
         windTexture.Create();
-
-
+        
         initializeChunks();
 
         field = new Bounds(Vector3.zero, new Vector3(-fillSize, terrainMat.GetFloat("_DisplacementStrength") * 2, fillSize));
@@ -163,7 +162,6 @@ public class Grass : MonoBehaviour
         grassInit.SetInt("OffsetY", OffsetY);
         grassInit.SetBuffer(0, "_Position", chunk.GrassBuffer);
         grassInit.Dispatch(0, Mathf.CeilToInt(fillSize / numChunks) * (int)grassDensityPerChunk, Mathf.CeilToInt(fillSize / numChunks) * (int)grassDensityPerChunk, 1);
-
         chunk.GrassMat = new Material(grassMaterial);
         chunk.GrassMat.SetBuffer("_GrassData", chunk.CulledGrassBuffer);
         chunk.GrassMat.SetTexture("_WindTex", windTexture);
@@ -216,7 +214,7 @@ public class Grass : MonoBehaviour
         Matrix4x4 P = Camera.main.projectionMatrix;
         Matrix4x4 V = Camera.main.transform.worldToLocalMatrix;
         Matrix4x4 VP = P * V;
-        GenerateWind();
+        //GenerateWind();
         for (int i = 0; i < numChunks * numChunks; ++i)
         {
 
@@ -244,8 +242,8 @@ public class Grass : MonoBehaviour
         windGenerator.SetTexture(0, "WindNoise", windTexture);
         windGenerator.SetFloat("_Time", Time.time);
         windGenerator.SetFloat("_Freq", windFreq);
-        windGenerator.SetInt("_NoiseMode", (int)windNoiseMode);
-        windGenerator.Dispatch(0, Mathf.CeilToInt(windTexture.width / 8.0f), Mathf.CeilToInt(windTexture.width / 8.0f), 1);
+        windGenerator.SetInt("_NoiseMode", 0);
+        windGenerator.Dispatch(0, Mathf.CeilToInt(windTexture.height / 8.0f), Mathf.CeilToInt(windTexture.height / 8.0f), 1);
 
     }
 
@@ -282,14 +280,15 @@ public class Grass : MonoBehaviour
     }
     void OnDisable()
     {
-        grassDataBuffer.Release();
+        windTexture.Release();
+        //grassDataBuffer.Release();
         voteBuffer.Release();
         scanBuffer.Release();
         groupSumArrayBuffer.Release();
         scannedGroupSumBuffer.Release();
-        culledGrassOutputBuffer.Release();
+        //culledGrassOutputBuffer.Release();
         compactedGrassIndicesBuffer.Release();
-        windTexture.Release();
+        
     }
 
     void OnDrawGizmos()

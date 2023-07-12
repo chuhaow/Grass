@@ -91,8 +91,10 @@ Shader "Unlit/Grass"
 
 
                 float4 localPos = v.vertex;
+                localPos = RotateAroundYInDegrees(localPos, 90 * idHash);
                 localPos = RotateAroundXInDegrees(localPos, 45 * idHash);
                 localPos.y *= pos.w + _BaseHeight;
+
                 localPos.x += pos.w * tex2Dlod(_WindTex, _GrassData[instanceID].worldUV.y) * v.uv.y * animationDirection.x; // multiple by uv.y to keep base still
                 localPos.z += pos.w * tex2Dlod(_WindTex, _GrassData[instanceID].worldUV.y) * v.uv.y * animationDirection.z;
                 float4 worldPos = float4(pos.xyz + localPos,1.0f);
@@ -109,7 +111,7 @@ Shader "Unlit/Grass"
                 
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.saturation = max(0.5f, 1.0f - (localPos.y- 1.0f / 1.5f));
-                o.chunkNum= float3(randValue(_ChunkNum * 20 + 1024), randValue(randValue(_ChunkNum) * 10 + 2048), randValue(_ChunkNum * 4 + 4096));
+                //o.chunkNum= float3(randValue(_ChunkNum * 20 + 1024), randValue(randValue(_ChunkNum) * 10 + 2048), randValue(_ChunkNum * 4 + 4096));
                 //o.col = worldPos;
                 /*if (length(worldPos) < 2.0f) {
                     o.col = worldPos;
@@ -120,8 +122,8 @@ Shader "Unlit/Grass"
             fixed4 frag(v2f i) : SV_Target
             {
                 float4 col = lerp(_Colour1, _Colour2, i.uv.y);
-                col = float4(i.chunkNum,1);
-                return col ;
+                //col = float4(i.chunkNum,1);
+                //return col ;
                 //float4 col = tex2D(_WindTex,i.uv);
                 //return col;
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
