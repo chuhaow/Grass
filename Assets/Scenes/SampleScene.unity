@@ -216,7 +216,7 @@ Transform:
   m_GameObject: {fileID: 614446216}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.32, y: 1, z: 0.32}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -535,7 +535,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.76, y: 3.74, z: -12.4}
+  m_LocalPosition: {x: 0.76, y: 6.2, z: -12.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -555,17 +555,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   grassMesh: {fileID: 8254687373856176130, guid: bf066fc4ef1e8c940b0cd0817cd02144, type: 3}
+  lodGrassMesh: {fileID: 8254687373856176130, guid: e474efc8e4f3e92489b9a12ca7373ff3, type: 3}
   grassMaterial: {fileID: 2100000, guid: 1e27d9d44cb56124786b9d5788f746cd, type: 2}
   heightMap: {fileID: 2800000, guid: 8a299a99dfe3b2544907cc969e31710c, type: 3}
   terrainMat: {fileID: 2100000, guid: 39987d2aefd02294ea79e28f8fa0117e, type: 2}
   heightOffset: 0
-  fillSize: 32
-  grassDensity: 16
+  fillSize: 100
+  grassDensityPerChunk: 6
+  numChunks: 6
   updateGrass: 0
   positionNoiseAmp: 0.1
+  lodDistance: 40
   windFreq: 0.05
   windNoiseMode: 0
-  grassInit: {fileID: 7200000, guid: 71a5b216563027e4ba9ffda4198dee7f, type: 3}
+  grassInit: {fileID: 7200000, guid: ac3b247ea579ffd4fb8fd9dc5cb339ff, type: 3}
   windGenerator: {fileID: 7200000, guid: 80528f5d5b6e5ec44b3f7f81e471dfad, type: 3}
   cull: {fileID: 7200000, guid: 5e590a8b132637440885947bd4774695, type: 3}
 --- !u!1 &1034314418
@@ -587,7 +590,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &1034314419
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -659,7 +662,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1034314418}
   m_LocalRotation: {x: 0.061686877, y: -0, z: -0, w: 0.9980956}
-  m_LocalPosition: {x: 1.4, y: 2.52, z: -0.31}
+  m_LocalPosition: {x: 1.4, y: 8.5, z: -0.31}
   m_LocalScale: {x: 1, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
