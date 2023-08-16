@@ -566,7 +566,7 @@ MonoBehaviour:
   updateGrass: 0
   positionNoiseAmp: 0.1
   lodDistance: 40
-  windFreq: 0.05
+  windFreq: 0.097
   windNoiseMode: 0
   grassInit: {fileID: 7200000, guid: ac3b247ea579ffd4fb8fd9dc5cb339ff, type: 3}
   windGenerator: {fileID: 7200000, guid: 80528f5d5b6e5ec44b3f7f81e471dfad, type: 3}
