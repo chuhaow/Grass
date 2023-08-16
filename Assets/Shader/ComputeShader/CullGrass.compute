@@ -46,7 +46,7 @@ void Vote(uint3 id : SV_DispatchThreadID)
     _VoteBuffer[id.x] = clipspace.x < 0.0f || clipspace.x > 1.0f  || clipspace.z <  0.0f? 0 : 1;
 }
 
-// From GPU Gems Chapter 39 'Parallel Prefix Sum (Scan) with CUDA'
+// From https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda
 [numthreads(NUM_THREAD_GROUPS_X, 1, 1)]
 void Scan(uint3 id : SV_DISPATCHTHREADID, uint groupIndex : SV_GROUPINDEX, uint3 _groupID : SV_GROUPID, uint3 groupThreadID : SV_GROUPTHREADID)
 {
@@ -101,7 +101,7 @@ void Scan(uint3 id : SV_DISPATCHTHREADID, uint groupIndex : SV_GROUPINDEX, uint3
     _ScanBuffer[2 * tid + 1] = temp[2 * groupTID + 1];
 }
 
-// From GPU Gems Chapter 39 'Parallel Prefix Sum (Scan) with CUDA'
+// From https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda
 [numthreads(1024, 1, 1)]
 void ScanGroupSums(uint3 id : SV_DISPATCHTHREADID, uint groupIndex : SV_GROUPINDEX, uint3 _groupID : SV_GROUPID, uint3 groupThreadID : SV_GROUPTHREADID)
 {
